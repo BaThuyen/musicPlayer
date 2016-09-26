@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity{
 
 	EditText txtKeyword;
 	@Override
@@ -24,18 +24,6 @@ public class MainActivity extends Activity {
 		fragmentTransaction.commit();
 		txtKeyword = (EditText) findViewById(R.id.txtKeyword);
 		txtKeyword.setFocusable(false);	
-	}
-	
-	class NavItem {
-	    String mTitle;
-	    String mSubtitle;
-	    int mIcon;
-	 
-	    public NavItem(String title, String subtitle, int icon) {
-	        mTitle = title;
-	        mSubtitle = subtitle;
-	        mIcon = icon;
-	    }
 	}
 
 	public void FragmentSongs(View view)
