@@ -36,4 +36,16 @@ public class MainActivity extends Activity{
 		fragmentTransaction.replace(R.id.frgSwitch, myfragment);
 		fragmentTransaction.commit();
 	}
+	
+	public void FragmentAlbums(View view)
+	{
+		Fragment myfragment;
+		myfragment = new FragmentAlbums();
+
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction fragmentTransaction = fm.beginTransaction();
+		fragmentTransaction.replace(R.id.frgSwitch, myfragment);
+		fragmentTransaction.commit();
+	}
+	
 }

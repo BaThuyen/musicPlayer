@@ -15,34 +15,34 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FragmentSongs extends Fragment {
+public class FragmentAlbums extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		String songs[] = new String[]{"Gửi anh xa nhớ", "Hãy ra khỏi người đó đi", "Trách ai bây giờ",
-				"Anh cứ đi đi", "Đếm ngày xa em"}; 
-		View view = inflater.inflate(R.layout.fragment_songs, container, false);
-		ListView lvwSongs = (ListView) view.findViewById(R.id.lvwSongs);
+		String albums[] = new String[]{"Chillax", "#NgungLamBan", "Nobody but me",
+				"Ôm giấc mơ em", "Idina"}; 
+		View view = inflater.inflate(R.layout.fragment_albums, container, false);
+		ListView lvwAlbums = (ListView) view.findViewById(R.id.lvwAlbums);
 		ArrayList<Model> arrList = new ArrayList<Model>();
-		for(int i = 0; i < songs.length; i++)
+		for(int i = 0; i < albums.length; i++)
 		{
-			arrList.add(new Model(songs[i]));
+			arrList.add(new Model(albums[i]));
 		}
 		MyAdapter adapter = new MyAdapter(this.getActivity(), arrList);
-		lvwSongs.setAdapter(adapter);
+		lvwAlbums.setAdapter(adapter);
 		return view;
 	}
 	
 	public class Model{
-	    private String songName;
+	    private String albumName;
 	 
-	    public Model(String songName) {
+	    public Model(String albumName) {
 	        super();
-	        this.songName = songName;
+	        this.albumName = albumName;
 	    }
 
-		public String getSongName() {
-			return songName;
+		public String getAlbumName() {
+			return albumName;
 		}
 
 		
@@ -74,8 +74,8 @@ public class FragmentSongs extends Fragment {
             TextView titleView = (TextView) rowView.findViewById(R.id.txtName);
  
                 // 4. Set the text for textView 
-            imgView.setImageResource(R.drawable.songs);
-            titleView.setText(modelsArrayList.get(position).getSongName());
+            imgView.setImageResource(R.drawable.album);
+            titleView.setText(modelsArrayList.get(position).getAlbumName());
 
             // 5. retrn rowView
             return rowView;
