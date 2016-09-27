@@ -77,13 +77,15 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingLeft="20dp"
-                android:paddingRight="20dp" >
+                android:paddingRight="20dp"
+                android:onClick="FragmentArtists" >
 
                 <Button
                     android:id="@+id/button3"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:background="@drawable/artist" />
+                    android:background="@drawable/artist"
+                    android:onClick="FragmentArtists" />
 
                 <TextView
                     android:id="@+id/textView3"
@@ -100,13 +102,15 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:paddingLeft="20dp"
-                android:paddingRight="20dp" >
+                android:paddingRight="20dp"
+                android:onClick="FragmentFolders" >
 
                 <Button
                     android:id="@+id/button4"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:background="@drawable/folder" />
+                    android:background="@drawable/folder"
+                    android:onClick="FragmentFolders" />
 
                 <TextView
                     android:id="@+id/textView4"
