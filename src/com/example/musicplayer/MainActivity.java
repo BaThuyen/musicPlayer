@@ -82,6 +82,28 @@ public class MainActivity extends Activity{
 		fragmentTransaction.commit();
 	}
 	
+	public void FragmentRecently(View view)
+	{
+		Fragment myfragment;
+		myfragment = new FragmentRecently();
+
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction fragmentTransaction = fm.beginTransaction();
+		fragmentTransaction.replace(R.id.frgSwitch, myfragment);
+		fragmentTransaction.commit();
+	}
+	
+	public void FragmentFavorite(View view)
+	{
+		Fragment myfragment;
+		myfragment = new FragmentMyfavorite();
+
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction fragmentTransaction = fm.beginTransaction();
+		fragmentTransaction.replace(R.id.frgSwitch, myfragment);
+		fragmentTransaction.commit();
+	}
+	
 	public void ActivityPlaying(View view)
 	{
 		Intent intent = new Intent(this, NowPlaying.class);

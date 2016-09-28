@@ -35,7 +35,7 @@ public class NowPlaying extends Activity {
 			lp = "sf";
 			break;
 		case "fw":
-			btnLoop.setBackgroundResource(R.drawable.shuffle);
+			btnLoop.setBackgroundResource(R.drawable.loop);
 			lp = "lp";
 			break;
 		case "sf":

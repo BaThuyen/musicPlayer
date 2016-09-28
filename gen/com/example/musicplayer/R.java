@@ -25,31 +25,34 @@ public final class R {
         public static final int album=0x7f020000;
         public static final int artist=0x7f020001;
         public static final int back=0x7f020002;
-        public static final int favorite=0x7f020003;
-        public static final int folder=0x7f020004;
-        public static final int forward=0x7f020005;
-        public static final int heart1=0x7f020006;
-        public static final int heart2=0x7f020007;
-        public static final int ic_drawer=0x7f020008;
-        public static final int ic_launcher=0x7f020009;
-        public static final int menu=0x7f02000a;
-        public static final int next=0x7f02000b;
-        public static final int play=0x7f02000c;
-        public static final int previous=0x7f02000d;
-        public static final int recent=0x7f02000e;
-        public static final int search=0x7f02000f;
-        public static final int sf=0x7f020010;
-        public static final int share=0x7f020011;
-        public static final int shuffle=0x7f020012;
-        public static final int songs=0x7f020013;
+        public static final int drawer_shadow=0x7f020003;
+        public static final int favorite=0x7f020004;
+        public static final int folder=0x7f020005;
+        public static final int forward=0x7f020006;
+        public static final int heart1=0x7f020007;
+        public static final int heart2=0x7f020008;
+        public static final int ic_drawer=0x7f020009;
+        public static final int ic_launcher=0x7f02000a;
+        public static final int loop=0x7f02000b;
+        public static final int menu=0x7f02000c;
+        public static final int next=0x7f02000d;
+        public static final int pause=0x7f02000e;
+        public static final int play=0x7f02000f;
+        public static final int previous=0x7f020010;
+        public static final int recent=0x7f020011;
+        public static final int search=0x7f020012;
+        public static final int share=0x7f020013;
+        public static final int shuffle=0x7f020014;
+        public static final int song=0x7f020015;
+        public static final int songs=0x7f020016;
     }
     public static final class id {
         public static final int LinearLayout2=0x7f080000;
-        public static final int action_settings=0x7f080021;
-        public static final int back=0x7f08001a;
+        public static final int action_settings=0x7f080023;
+        public static final int back=0x7f08001c;
         public static final int btnAlbums=0x7f08000f;
-        public static final int btnFavorite=0x7f08001c;
-        public static final int btnLoop=0x7f08001b;
+        public static final int btnFavorite=0x7f08001e;
+        public static final int btnLoop=0x7f08001d;
         public static final int btnMenu=0x7f080001;
         public static final int btnSongs=0x7f08000e;
         public static final int button1=0x7f080008;
@@ -59,14 +62,16 @@ public final class R {
         public static final int button5=0x7f080013;
         public static final int button6=0x7f080015;
         public static final int frgSwitch=0x7f080005;
-        public static final int imageView1=0x7f08001d;
-        public static final int imvIcon=0x7f080018;
+        public static final int imageView1=0x7f08001f;
+        public static final int imvIcon=0x7f08001a;
         public static final int lvwAlbums=0x7f08000b;
         public static final int lvwArtists=0x7f08000c;
         public static final int lvwFolders=0x7f08000d;
-        public static final int lvwSongs=0x7f080017;
+        public static final int lvwMyfavorite=0x7f080017;
+        public static final int lvwSongRecently=0x7f080018;
+        public static final int lvwSongs=0x7f080019;
         public static final int progressBar1=0x7f080006;
-        public static final int seekBar1=0x7f080020;
+        public static final int seekBar1=0x7f080022;
         public static final int textView1=0x7f080002;
         public static final int textView2=0x7f080007;
         public static final int textView3=0x7f080010;
@@ -74,10 +79,10 @@ public final class R {
         public static final int textView5=0x7f080012;
         public static final int textView6=0x7f080014;
         public static final int textView7=0x7f080016;
-        public static final int txtArtists=0x7f08001f;
+        public static final int txtArtists=0x7f080021;
         public static final int txtKeyword=0x7f080003;
-        public static final int txtName=0x7f080019;
-        public static final int txtSongName=0x7f08001e;
+        public static final int txtName=0x7f08001b;
+        public static final int txtSongName=0x7f080020;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -85,9 +90,11 @@ public final class R {
         public static final int fragment_artists=0x7f030002;
         public static final int fragment_folders=0x7f030003;
         public static final int fragment_main=0x7f030004;
-        public static final int fragment_songs=0x7f030005;
-        public static final int list_item=0x7f030006;
-        public static final int now_playing=0x7f030007;
+        public static final int fragment_myfavorite=0x7f030005;
+        public static final int fragment_recently=0x7f030006;
+        public static final int fragment_songs=0x7f030007;
+        public static final int list_item=0x7f030008;
+        public static final int now_playing=0x7f030009;
     }
     public static final class menu {
         public static final int global=0x7f070000;

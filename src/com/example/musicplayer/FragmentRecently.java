@@ -20,7 +20,7 @@ public class FragmentRecently extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		String recentlySongs[] = new String[]{"Gửi anh xa nhớ", "Hãy ra khỏi người đó đi", "Trách ai bây giờ",
-				"Anh cứ đi đi", "Đếm ngày xa em"}; 
+				"Anh cứ đi đi", "Đếm ngày xa em"};
 		View view = inflater.inflate(R.layout.fragment_recently, container, false);
 		ListView lvwSongRecently = (ListView) view.findViewById(R.id.lvwSongRecently);
 		ArrayList<Model> arrList = new ArrayList<Model>();
@@ -74,7 +74,7 @@ public class FragmentRecently extends Fragment {
             TextView titleView = (TextView) rowView.findViewById(R.id.txtName);
  
                 // 4. Set the text for textView 
-            imgView.setImageResource(R.drawable.songs);
+            imgView.setImageResource(R.drawable.recent);
             titleView.setText(modelsArrayList.get(position).getSongName());
 
             // 5. retrn rowView

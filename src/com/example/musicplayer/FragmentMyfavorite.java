@@ -19,7 +19,7 @@ public class FragmentMyfavorite extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		String favorite[] = new String[]{"Gửi anh xa nhớ", "Hãy ra khỏi người đó đi", "Trách ai bây giờ",
+		String favorite[] = new String[]{"Trách ai bây giờ",
 				"Anh cứ đi đi", "Đếm ngày xa em"}; 
 		View view = inflater.inflate(R.layout.fragment_myfavorite, container, false);
 		ListView lvwMyfavorite = (ListView) view.findViewById(R.id.lvwMyfavorite);
