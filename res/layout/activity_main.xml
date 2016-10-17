@@ -32,7 +32,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="right|center" >
+            android:gravity="right|center"
+            android:focusableInTouchMode="true" >
 
             <EditText
                 android:id="@+id/txtKeyword"
@@ -40,8 +41,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10" >
-
-                <requestFocus />
             </EditText>
 
             <Button
@@ -76,12 +75,11 @@
         android:onClick="ActivityPlaying">
 
         <TextView
-            android:id="@+id/textView2"
-            android:layout_width="208dp"
+            android:id="@+id/txtSongPlaying"
+            android:layout_width="174dp"
             android:layout_height="wrap_content"
             android:text="Đếm ngày xa em"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-             />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -95,11 +93,12 @@
                 android:background="@drawable/previous" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/btnPlay"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/play"
-                android:onClick="abc"/>
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp" />
 
             <Button
                 android:id="@+id/button4"

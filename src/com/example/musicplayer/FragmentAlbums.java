@@ -2,83 +2,95 @@ package com.example.musicplayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import android.R.xml;
 import android.app.Fragment;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
+import model_song.AlbumAdapter;
+import model_song.ArtistAdapter;
+import model_song.Song;
 
 public class FragmentAlbums extends Fragment {
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		String albums[] = new String[]{"Chillax", "#NgungLamBan", "Nobody but me",
-				"Ôm giấc mơ em", "Idina"}; 
-		View view = inflater.inflate(R.layout.fragment_albums, container, false);
-		ListView lvwAlbums = (ListView) view.findViewById(R.id.lvwAlbums);
-		ArrayList<Model> arrList = new ArrayList<Model>();
-		for(int i = 0; i < albums.length; i++)
-		{
-			arrList.add(new Model(albums[i]));
+	private ArrayList<Song> songList = new ArrayList<Song>();
+	private ListView lvwAlbums;
+	boolean ext = false;
+	public void getSongList(){
+		//query external audio
+		ContentResolver musicResolver = this.getActivity().getContentResolver();
+		Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+		Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+		//iterate over results if valid
+		if(musicCursor != null && musicCursor.moveToFirst()){
+			//get column
+			int idColumn = musicCursor.getColumnIndex
+					(android.provider.MediaStore.Audio.Media._ID);
+			int albumColumn = musicCursor.getColumnIndex
+					(android.provider.MediaStore.Audio.Media.ALBUM);
+			//add songs to list
+			do {
+				long thisId = musicCursor.getLong(idColumn);
+				String thisAlbum = musicCursor.getString(albumColumn);
+				boolean existed = false;
+				for(int i = 0; i < songList.size(); i++)
+				{
+					if(songList.get(i).getAlbum().equals(thisAlbum))
+					{
+						existed = true;
+						break;
+					}
+				}
+				if(!existed)
+					songList.add(new Song(thisId, "", "", "", thisAlbum));
+			} 
+			while (musicCursor.moveToNext());
 		}
-		MyAdapter adapter = new MyAdapter(this.getActivity(), arrList);
-		lvwAlbums.setAdapter(adapter);
-		return view;
 	}
 	
-	public class Model{
-	    private String albumName;
-	 
-	    public Model(String albumName) {
-	        super();
-	        this.albumName = albumName;
-	    }
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_albums, container, false);
+		lvwAlbums = (ListView) view.findViewById(R.id.lvwAlbums);
 
-		public String getAlbumName() {
-			return albumName;
-		}
-
+		getSongList();
+		//sort alphabetically by title
+		Collections.sort(songList, new Comparator<Song>(){
+			public int compare(Song a, Song b){
+				return a.getTitle().compareTo(b.getTitle());
+			}
+		});
 		
-	}
-	public class MyAdapter extends ArrayAdapter<Model>{
-		private final Context context;
-        private final ArrayList<Model> modelsArrayList;
- 
-        public MyAdapter(Context context, ArrayList<Model> modelsArrayList) {
- 
-            super(context, R.layout.list_item, modelsArrayList);
- 
-            this.context = context;
-            this.modelsArrayList = modelsArrayList;
-        }
- 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
- 
-            // 1. Create inflater 
-            LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
- 
-            // 2. Get rowView from inflater
- 
-            View rowView = inflater.inflate(R.layout.list_item, parent, false);
+		//create and set adapter
+		AlbumAdapter albumAdt = new AlbumAdapter(this.getActivity(), songList);
+		lvwAlbums.setAdapter(albumAdt);
+		lvwAlbums.setOnItemClickListener(new OnItemClickListener() {
+			
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				// TODO Auto-generated method stub
 
-            ImageView imgView = (ImageView) rowView.findViewById(R.id.imvIcon); 
-            TextView titleView = (TextView) rowView.findViewById(R.id.txtName);
- 
-                // 4. Set the text for textView 
-            imgView.setImageResource(R.drawable.album);
-            titleView.setText(modelsArrayList.get(position).getAlbumName());
-
-            // 5. retrn rowView
-            return rowView;
-        }
+				Intent intent = new Intent(getActivity(), SongsActivity.class);
+				intent.putExtra("album", songList.get(arg2).getAlbum());
+				startActivity(intent);
+			}
+			
+		});
+		return view;
 	}
 }

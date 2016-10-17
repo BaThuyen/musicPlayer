@@ -47,7 +47,7 @@
                 android:onClick="loop"/>
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/btnPlay"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:background="@drawable/share"
