@@ -44,7 +44,7 @@ import model_song.MusicService.MusicBinder;
 
 public class SongsActivity extends Activity {
 
-	private Button btnPlayPause, btnNext, btnPre;
+	public static Button btnPlayPause, btnNext, btnPre;
 	public ArrayList<Song> songList;
 	private ListView lvwSongs;
 	private MediaPlayer player;
@@ -54,7 +54,7 @@ public class SongsActivity extends Activity {
 	private String playingSongTitle = "";
 
 	private static String PATH;
-	private TextView txtSongName;
+	public static TextView txtSongName;
 	private int songPlaying;
 
 	private String album;
@@ -79,7 +79,7 @@ public class SongsActivity extends Activity {
 		setContentView(R.layout.activity_songs);
 		openDatabase();
 		getPATH();
-		Toast.makeText(this, PATH, Toast.LENGTH_LONG).show();
+
 		Bundle extras = getIntent().getExtras();
 		if (extras == null) {
 			album = null;
@@ -91,9 +91,13 @@ public class SongsActivity extends Activity {
 		controller = new MusicController(this);
 		lvwSongs = (ListView) findViewById(R.id.lvwSongs);
 		txtSongName = (TextView) findViewById(R.id.txtSongName);
-		txtSongName.setText("");
+
 		songList = new ArrayList<Song>();
 		player = com.example.musicplayer.MainActivity.player;
+		btnPlayPause = (Button) findViewById(R.id.btnPlayPause);
+		btnNext = (Button) findViewById(R.id.btnNext);
+		btnPre = (Button) findViewById(R.id.btnPre);
+		getData();
 
 		updatePlaylist();
 		SongAdapter songAdt = new SongAdapter(this, songList);
@@ -122,9 +126,6 @@ public class SongsActivity extends Activity {
 				}
 			}
 		});
-		btnPlayPause = (Button) findViewById(R.id.btnPlayPause);
-		btnNext = (Button) findViewById(R.id.btnNext);
-		btnPre = (Button) findViewById(R.id.btnPre);
 
 		btnPlayPause.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -228,8 +229,7 @@ public class SongsActivity extends Activity {
 
 			}
 		});
-		getData();
-		
+
 		player.setOnCompletionListener(new OnCompletionListener() {
 
 			@Override
@@ -265,19 +265,19 @@ public class SongsActivity extends Activity {
 
 	public void getData() {
 		Cursor c = database.query("recently", null, null, null, null, null, null);
-		c.moveToFirst();
-		if (c.getCount() > 0)
-			if (c.isAfterLast()) {
-				playingSongName = c.getString(0);
-				playingSongTitle = c.getString(1);
-				songPlaying = Integer.parseInt(c.getString(2));
-				Toast.makeText(this, playingSongTitle, Toast.LENGTH_LONG).show();
-				c.moveToNext();
-			}
+		c.moveToLast();
+
+		if (c.isAfterLast() == false) {
+			playingSongName = c.getString(0);
+			playingSongTitle = c.getString(1);
+			songPlaying = Integer.parseInt(c.getString(2));
+			c.moveToNext();
+		}
 		c.close();
 		if (playingSongName.length() > 0) {
-			if (playingSongTitle.length() > 20)
-				playingSongTitle = playingSongTitle.substring(0, 20) + "..";
+			if (playingSongTitle.length() > 20) {
+				playingSongTitle = playingSongTitle.substring(0, 18) + "..";
+			}
 			txtSongName.setText(playingSongTitle);
 			if (player.isPlaying()) {
 				btnPlayPause.setBackgroundResource(R.drawable.pause);
@@ -286,6 +286,7 @@ public class SongsActivity extends Activity {
 					player.reset();
 					player.setDataSource(PATH + playingSongName);
 					player.prepare();
+
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -333,4 +334,10 @@ public class SongsActivity extends Activity {
 			} while (musicCursor.moveToNext());
 		}
 	}// end of updatePlaylist
+	public void ActivityPlaying(View view)
+	{
+		Intent intent = new Intent(this, NowPlaying.class);
+		startActivity(intent);
+	
+	}
 }

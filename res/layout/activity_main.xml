@@ -87,7 +87,7 @@
             android:gravity="right">
 
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/btnPre_M"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="@drawable/previous" />
@@ -101,7 +101,7 @@
                 android:layout_marginRight="15dp" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/btnNext_M"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="@drawable/next" />
