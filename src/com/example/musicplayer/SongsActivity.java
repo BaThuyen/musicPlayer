@@ -133,6 +133,7 @@ public class SongsActivity extends Activity {
 				if (player.isPlaying()) {
 					player.pause();
 					btnPlayPause.setBackgroundResource(R.drawable.play);
+					com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.play);
 				} else {
 					player.start();
 					btnPlayPause.setBackgroundResource(R.drawable.pause);

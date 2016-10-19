@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.musicplayer.MainActivity" >
+    tools:context="com.example.musicplayer.MainActivity"
+    android:background="@drawable/background" >
 
     <LinearLayout
         android:orientation="horizontal"

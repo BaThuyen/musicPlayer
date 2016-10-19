@@ -21,7 +21,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import model_song.Song;
 import android.widget.Toast;
 
-public class NowPlaying extends Activity implements OnClickListener{
+public class NowPlaying extends Activity implements OnClickListener {
 
 	String lp = "fw";
 	Boolean fvt = false;
@@ -69,7 +69,7 @@ public class NowPlaying extends Activity implements OnClickListener{
 		sb = (SeekBar) findViewById(R.id.seekBar);
 		sb.setMax((int) finalTime);
 		sb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			
+
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				// TODO Auto-generated method stub
@@ -94,7 +94,6 @@ public class NowPlaying extends Activity implements OnClickListener{
 
 		myHandler.postDelayed(UpdateSongTime, 100);
 
-		
 		getData();
 		player.setOnCompletionListener(new OnCompletionListener() {
 			@Override
@@ -111,8 +110,6 @@ public class NowPlaying extends Activity implements OnClickListener{
 					player.prepare();
 					player.start();
 					String songName = songList.get(songPlaying).getTitle();
-					if (songName.length() > 15)
-						songName = songName.substring(0, 15).concat("..");
 					txtSongName.setText(songName);
 					play.setBackgroundResource(R.drawable.pause);
 					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
@@ -121,7 +118,6 @@ public class NowPlaying extends Activity implements OnClickListener{
 					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
 							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
 									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-					sb = (SeekBar) findViewById(R.id.seekBar);
 					sb.setMax((int) finalTime);
 					com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
 					com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
@@ -220,8 +216,6 @@ public class NowPlaying extends Activity implements OnClickListener{
 		database.insert("recently", null, values);
 	}
 
-	
-
 	public void getPATH() {
 
 		Cursor c = database.query("path", null, null, null, null, null, null);
@@ -263,10 +257,13 @@ public class NowPlaying extends Activity implements OnClickListener{
 				player.start();
 
 				String songName = songList.get(songPlaying).getTitle();
-				if (songName.length() > 15)
-					songName = songName.substring(0, 15).concat("..");
 				txtSongName.setText(songName);
 				play.setBackgroundResource(R.drawable.pause);
+				finalTime = player.getDuration();
+				txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+						TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+								- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+				sb.setMax((int) finalTime);
 				addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -286,10 +283,13 @@ public class NowPlaying extends Activity implements OnClickListener{
 				player.start();
 
 				String songName = songList.get(songPlaying).getTitle();
-				if (songName.length() > 15)
-					songName = songName.substring(0, 15).concat("..");
 				txtSongName.setText(songName);
 				play.setBackgroundResource(R.drawable.pause);
+				finalTime = player.getDuration();
+				txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+						TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+								- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+				sb.setMax((int) finalTime);
 				addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

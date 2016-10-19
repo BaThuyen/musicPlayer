@@ -318,6 +318,13 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 	}
 	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		System.exit(1);
+	}
+
 	public void addRecently(String name, String title) {
 		database.delete("recently", "songName=?", new String[] { name });
 		ContentValues values = new ContentValues();

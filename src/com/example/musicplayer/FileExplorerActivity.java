@@ -45,7 +45,7 @@ public class FileExplorerActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.file_explorer);
 		dir = new File(PATH);
 		curFolder = (TextView) findViewById(R.id.txtCurFolder);
@@ -58,13 +58,15 @@ public class FileExplorerActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 				// TODO Auto-generated method stub
 				Model folder = arrList.get(position);
-				dir = new File(folder.getDirectory());
-				fill(dir);
+				if (!folder.getfolderName().endsWith(".mp3")) {
+					dir = new File(folder.getDirectory());
+					fill(dir);
+				}
 			}
 		});
 		Button btnSelectFolder = (Button) findViewById(R.id.btnSelectFolder);
 		btnSelectFolder.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -80,7 +82,7 @@ public class FileExplorerActivity extends Activity {
 		File[] dirs = f.listFiles();
 		arrList = new ArrayList<Model>();
 		if (!f.getParent().equals("/"))
-			arrList.add(new Model("../", f.getParent()));
+			arrList.add(new Model("../", f.getParent(), false));
 		try {
 			for (File ff : dirs) {
 
@@ -95,8 +97,10 @@ public class FileExplorerActivity extends Activity {
 					num_item = num_item + " item";
 				else
 					num_item = num_item + " items";
-				if(!ff.isFile())
-					arrList.add(new Model(ff.getName(), ff.getPath()));
+				if (!ff.isFile())
+					arrList.add(new Model(ff.getName(), ff.getPath(), false));
+				else if (ff.getName().endsWith(".mp3"))
+					arrList.add(new Model(ff.getName(), ff.getPath(), true));
 
 			}
 		} catch (Exception e) {
@@ -106,9 +110,8 @@ public class FileExplorerActivity extends Activity {
 		MyAdapter adapter = new MyAdapter(this, arrList);
 		lvwFolders.setAdapter(adapter);
 	}
-	
-	public void setPATH(String directory)
-	{
+
+	public void setPATH(String directory) {
 		database = openOrCreateDatabase("musicPlayer.db", MODE_PRIVATE, null);
 		database.delete("path", null, null);
 		ContentValues values = new ContentValues();
@@ -119,11 +122,13 @@ public class FileExplorerActivity extends Activity {
 	public class Model {
 		private String folderName;
 		private String directory;
+		private boolean isSong = false;
 
-		public Model(String folderName, String directory) {
+		public Model(String folderName, String directory, boolean isSong) {
 			super();
 			this.folderName = folderName;
 			this.directory = directory;
+			this.isSong = isSong;
 		}
 
 		public String getfolderName() {
@@ -132,6 +137,14 @@ public class FileExplorerActivity extends Activity {
 
 		public String getDirectory() {
 			return directory;
+		}
+
+		public boolean isSong() {
+			return isSong;
+		}
+
+		public void setSong(boolean isSong) {
+			this.isSong = isSong;
 		}
 	}
 
@@ -161,7 +174,10 @@ public class FileExplorerActivity extends Activity {
 			TextView titleView = (TextView) rowView.findViewById(R.id.txtName);
 
 			// 4. Set the text for textView
-			imgView.setImageResource(R.drawable.folder);
+			if (modelsArrayList.get(position).isSong)
+				imgView.setImageResource(R.drawable.songs);
+			else
+				imgView.setImageResource(R.drawable.folder);
 			titleView.setText(modelsArrayList.get(position).getfolderName());
 
 			// 5. retrn rowView
