@@ -72,6 +72,7 @@ public class FileExplorerActivity extends Activity {
 				// TODO Auto-generated method stub
 				setPATH(dir.getPath());
 				PATH = dir.getPath();
+				database.execSQL("DELETE FROM recently");
 				Intent intent = new Intent(getApplicationContext(), SongsActivity.class);
 				startActivity(intent);
 			}

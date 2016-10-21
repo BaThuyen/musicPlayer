@@ -4,13 +4,15 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" >
+    </uses-permission>
+
     <uses-sdk
         android:minSdkVersion="19"
         android:targetSdkVersion="19" />
-    
 
     <application
         android:allowBackup="true"
@@ -27,7 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name="com.example.musicplayer.NowPlaying"
             android:label="@string/app_name"
@@ -43,6 +44,7 @@
             android:label="@string/app_name"
             android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" >
         </activity>
+
         <service android:name="model_song.MusicService" />
     </application>
 

@@ -48,7 +48,7 @@
                 android:onClick="loop"/>
 
             <Button
-                android:id="@+id/btnPlay"
+                android:id="@+id/btnShare"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:background="@drawable/share"
@@ -65,10 +65,11 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/imgDisk"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:src="@drawable/songs" />
+            android:src="@drawable/disk"
+            android:layout_marginLeft="15dp" />
 
     </LinearLayout>
 

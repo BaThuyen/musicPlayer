@@ -1,20 +1,25 @@
 package com.example.musicplayer;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -23,7 +28,7 @@ import android.widget.Toast;
 
 public class NowPlaying extends Activity implements OnClickListener {
 
-	String lp = "fw";
+	int lp = 2;
 	Boolean fvt = false;
 	SeekBar sb;
 	MediaPlayer player;
@@ -37,10 +42,13 @@ public class NowPlaying extends Activity implements OnClickListener {
 	private int songPlaying;
 	Button play, next, pre;
 	TextView txtStart, txtFinal;
+	private ImageView imgDisk;
 
 	private double startTime = 0;
 	private double finalTime = 0;
-	private Handler myHandler = new Handler();;
+	private Handler myHandler = new Handler();
+	float angle = 0;
+	Random rd = new Random();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +64,14 @@ public class NowPlaying extends Activity implements OnClickListener {
 		next.setOnClickListener(this);
 		pre = (Button) findViewById(R.id.btnPre_NP);
 		pre.setOnClickListener(this);
-		Button loop, share, favorite;
+		Button share, favorite;
+		share = (Button) findViewById(R.id.btnShare);
+		share.setOnClickListener(this);
 
 		txtSongName = (TextView) findViewById(R.id.txtSongName_NP);
 		txtStart = (TextView) findViewById(R.id.txtStart);
 		txtFinal = (TextView) findViewById(R.id.txtFinal);
+		imgDisk = (ImageView) findViewById(R.id.imgDisk);
 
 		finalTime = player.getDuration();
 		txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
@@ -99,43 +110,58 @@ public class NowPlaying extends Activity implements OnClickListener {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				// TODO Auto-generated method stub
-				songPlaying++;
-				if (songPlaying >= songList.size())
-					songPlaying = 0;
-				try {
-					Toast.makeText(getApplicationContext(), songList.get(songPlaying).getName(), Toast.LENGTH_LONG)
-							.show();
-					player.reset();
-					player.setDataSource(PATH + songList.get(songPlaying).getName());
-					player.prepare();
-					player.start();
-					String songName = songList.get(songPlaying).getTitle();
-					txtSongName.setText(songName);
-					play.setBackgroundResource(R.drawable.pause);
-					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-					play.setBackgroundResource(R.drawable.pause);
-					finalTime = player.getDuration();
-					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-					sb.setMax((int) finalTime);
-					com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
-					com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
-					com.example.musicplayer.SongsActivity.txtSongName.setText(songName);
-					com.example.musicplayer.SongsActivity.btnPlayPause.setBackgroundResource(R.drawable.pause);
-				} catch (Exception e) {
-					// TODO: handle exception
+				angle = 0;
+				getType();
+				boolean stop = false;
+				if (lp == 0) {
+					songPlaying++;
+					if (songPlaying >= songList.size()) {
+						player.stop();
+						stop = true;
+					}
+				} else if (lp == 1) {
+					songPlaying++;
+					if (songPlaying >= songList.size())
+						songPlaying = 0;
+				} else {
+					songPlaying = rd.nextInt(songList.size() - 1);
 				}
+				if (!stop)
+					try {
+						player.reset();
+						player.setDataSource(PATH + songList.get(songPlaying).getName());
+						player.prepare();
+						player.start();
+						String songName = songList.get(songPlaying).getTitle();
+						txtSongName.setText(songName);
+						play.setBackgroundResource(R.drawable.pause);
+						addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+						play.setBackgroundResource(R.drawable.pause);
+						finalTime = player.getDuration();
+						txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+								TimeUnit.MILLISECONDS.toSeconds((long) finalTime) - TimeUnit.MINUTES
+										.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+						sb.setMax((int) finalTime);
+						com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
+						com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
+						com.example.musicplayer.SongsActivity.txtSongName.setText(songName);
+						com.example.musicplayer.SongsActivity.btnPlayPause.setBackgroundResource(R.drawable.pause);
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
 			}
 		});
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
 		public void run() {
+			if (player.isPlaying()) {
+				imgDisk.animate().rotation(angle).start();
+				angle += 5;
+			}
 			startTime = player.getCurrentPosition();
-			txtStart.setText(String.format("%02d:%02d",
-
-					TimeUnit.MILLISECONDS.toMinutes((long) startTime), TimeUnit.MILLISECONDS.toSeconds((long) startTime)
+			txtStart.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+					TimeUnit.MILLISECONDS.toSeconds((long) startTime)
 							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime))));
 			sb.setProgress((int) startTime);
 			myHandler.postDelayed(this, 100);
@@ -148,20 +174,30 @@ public class NowPlaying extends Activity implements OnClickListener {
 
 	public void loop(View view) {
 		Button btnLoop = (Button) findViewById(R.id.btnLoop);
+		Cursor c = database.query("playingType", null, null, null, null, null, null);
+		c.moveToFirst();
+		if (c.isAfterLast() == false) {
+			lp = Integer.parseInt(c.getString(0));
+			c.moveToNext();
+		}
 		switch (lp) {
-		case "lp":
-			btnLoop.setBackgroundResource(R.drawable.shuffle);
-			lp = "sf";
-			break;
-		case "fw":
+		case 0:
 			btnLoop.setBackgroundResource(R.drawable.loop);
-			lp = "lp";
+			lp = 1;
 			break;
-		case "sf":
+		case 1:
+			btnLoop.setBackgroundResource(R.drawable.shuffle);
+			lp = 2;
+			break;
+		case 2:
 			btnLoop.setBackgroundResource(R.drawable.forward);
-			lp = "fw";
+			lp = 0;
 			break;
 		}
+		database.delete("playingType", null, null);
+		ContentValues values = new ContentValues();
+		values.put("type", lp);
+		database.insert("playingType", null, values);
 	}
 
 	public void favorite(View view) {
@@ -205,6 +241,28 @@ public class NowPlaying extends Activity implements OnClickListener {
 				}
 			}
 		}
+		getType();
+	}
+
+	public void getType() {
+		Button btnLoop = (Button) findViewById(R.id.btnLoop);
+		Cursor c = database.query("playingType", null, null, null, null, null, null);
+		c.moveToFirst();
+		if (c.isAfterLast() == false) {
+			lp = Integer.parseInt(c.getString(0));
+			c.moveToNext();
+		}
+		switch (lp) {
+		case 0:
+			btnLoop.setBackgroundResource(R.drawable.forward);
+			break;
+		case 1:
+			btnLoop.setBackgroundResource(R.drawable.loop);
+			break;
+		case 2:
+			btnLoop.setBackgroundResource(R.drawable.shuffle);
+			break;
+		}
 	}
 
 	public void addRecently(String name, String title) {
@@ -245,56 +303,86 @@ public class NowPlaying extends Activity implements OnClickListener {
 			}
 			break;
 		case R.id.btnNext_NP:
-			if (songPlaying > 0) {
-				songPlaying--;
+			angle = 0;
+			getType();
+			boolean stop = false;
+			if (lp == 0) {
+				songPlaying++;
+				if (songPlaying >= songList.size()) {
+					player.stop();
+					stop = true;
+				}
+			} else if (lp == 1) {
+				songPlaying++;
+				if (songPlaying >= songList.size())
+					songPlaying = 0;
 			} else {
-				songPlaying = songList.size() - 1;
+				songPlaying = rd.nextInt(songList.size() - 1);
 			}
 			player.reset();
-			try {
-				player.setDataSource(PATH + songList.get(songPlaying).getName());
-				player.prepare();
-				player.start();
+			if (!stop)
+				try {
+					player.setDataSource(PATH + songList.get(songPlaying).getName());
+					player.prepare();
+					player.start();
 
-				String songName = songList.get(songPlaying).getTitle();
-				txtSongName.setText(songName);
-				play.setBackgroundResource(R.drawable.pause);
-				finalTime = player.getDuration();
-				txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-						TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-								- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-				sb.setMax((int) finalTime);
-				addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+					String songName = songList.get(songPlaying).getTitle();
+					txtSongName.setText(songName);
+					play.setBackgroundResource(R.drawable.pause);
+					finalTime = player.getDuration();
+					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+					sb.setMax((int) finalTime);
+					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			break;
 		case R.id.btnPre_NP:
-			if (songPlaying < songList.size() - 1) {
-				songPlaying++;
+			angle = 0;
+			getType();
+			boolean stop1 = false;
+			if (lp == 0) {
+				songPlaying--;
+				if (songPlaying < 0) {
+					player.stop();
+					stop1 = true;
+				}
+			} else if (lp == 1) {
+				songPlaying--;
+				if (songPlaying < 0)
+					songPlaying = songList.size() - 1;
 			} else {
-				songPlaying = 0;
+				songPlaying = rd.nextInt(songList.size() - 1);
 			}
 			player.reset();
-			try {
-				player.setDataSource(PATH + songList.get(songPlaying).getName());
-				player.prepare();
-				player.start();
+			if (!stop1)
+				try {
+					player.setDataSource(PATH + songList.get(songPlaying).getName());
+					player.prepare();
+					player.start();
 
-				String songName = songList.get(songPlaying).getTitle();
-				txtSongName.setText(songName);
-				play.setBackgroundResource(R.drawable.pause);
-				finalTime = player.getDuration();
-				txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-						TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-								- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-				sb.setMax((int) finalTime);
-				addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+					String songName = songList.get(songPlaying).getTitle();
+					txtSongName.setText(songName);
+					play.setBackgroundResource(R.drawable.pause);
+					finalTime = player.getDuration();
+					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+					sb.setMax((int) finalTime);
+					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			break;
+		case R.id.btnShare:
+			File audio = new File(PATH + playingSongName);
+			Intent intent = new Intent(Intent.ACTION_SEND).setType("audio/*");
+			intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(audio));
+			startActivity(Intent.createChooser(intent, "Share to"));
 			break;
 		default:
 			break;
