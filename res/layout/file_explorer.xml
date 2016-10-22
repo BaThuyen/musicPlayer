@@ -10,7 +10,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:background="#00ffff"
+        android:background="#00CCFF"
         android:text="Current Folder: "
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -25,9 +25,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:gravity="right|center_vertical"
-        android:background="#00FfFf">
+        android:background="#00CCFF">
 
         <Button
             android:id="@+id/btnSelectFolder"
