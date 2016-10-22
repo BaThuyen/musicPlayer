@@ -1,15 +1,19 @@
 package com.example.musicplayer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.R.xml;
 import android.app.Fragment;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -17,34 +21,60 @@ import android.widget.TextView;
 
 public class FragmentMyfavorite extends Fragment {
 
+	String favorite[];
+	ArrayList<Model> arrList;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		String favorite[] = new String[]{"Trách ai bây giờ",
-				"Anh cứ đi đi", "Đếm ngày xa em"}; 
 		View view = inflater.inflate(R.layout.fragment_myfavorite, container, false);
 		ListView lvwMyfavorite = (ListView) view.findViewById(R.id.lvwMyfavorite);
-		ArrayList<Model> arrList = new ArrayList<Model>();
-		for(int i = 0; i < favorite.length; i++)
-		{
-			arrList.add(new Model(favorite[i]));
-		}
+		arrList = new ArrayList<Model>();
+		getFavorite();
+
 		MyAdapter adapter = new MyAdapter(this.getActivity(), arrList);
 		lvwMyfavorite.setAdapter(adapter);
+		lvwMyfavorite.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				// TODO Auto-generated method stub
+				try {
+					com.example.musicplayer.MainActivity.player.reset();
+					com.example.musicplayer.MainActivity.player.setDataSource(arrList.get(arg2).getPath());
+					com.example.musicplayer.MainActivity.player.prepare();
+					com.example.musicplayer.MainActivity.player.start();
+					com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
+					com.example.musicplayer.MainActivity.txtSongPlaying.setText(arrList.get(arg2).getSongName());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+				}
+			}
+		});
 		return view;
 	}
-	
+	private void getFavorite(){
+		Cursor c = com.example.musicplayer.MainActivity.database.query("favorite", null, null, null, null, null, null);
+		c.moveToFirst();
+		while(c.isAfterLast() == false){
+			arrList.add(new Model(c.getString(0), c.getString(1)));
+			c.moveToNext();
+		}
+	}
 	public class Model{
 	    private String songName;
+	    private String path;
 	 
-	    public Model(String songName) {
+	    public Model(String songName, String path) {
 	        super();
 	        this.songName = songName;
+	        this.path = path;
 	    }
 
 		public String getSongName() {
 			return songName;
 		}
-
+		public String getPath() {
+			return path;
+		}
 		
 	}
 	public class MyAdapter extends ArrayAdapter<Model>{

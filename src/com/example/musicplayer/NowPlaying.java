@@ -49,6 +49,7 @@ public class NowPlaying extends Activity implements OnClickListener {
 	private Handler myHandler = new Handler();
 	float angle = 0;
 	Random rd = new Random();
+	ButtonHandle handle = com.example.musicplayer.MainActivity.handle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,49 +107,28 @@ public class NowPlaying extends Activity implements OnClickListener {
 		myHandler.postDelayed(UpdateSongTime, 100);
 
 		getData();
+		getFavoriteStatus();
 		player.setOnCompletionListener(new OnCompletionListener() {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				// TODO Auto-generated method stub
 				angle = 0;
-				getType();
-				boolean stop = false;
-				if (lp == 0) {
-					songPlaying++;
-					if (songPlaying >= songList.size()) {
-						player.stop();
-						stop = true;
-					}
-				} else if (lp == 1) {
-					songPlaying++;
-					if (songPlaying >= songList.size())
-						songPlaying = 0;
-				} else {
-					songPlaying = rd.nextInt(songList.size() - 1);
+				songPlaying = handle.btnNext(songPlaying);
+				try {
+					getFavoriteStatus();
+					playingSongTitle = songList.get(songPlaying).getTitle();
+					txtSongName.setText(playingSongTitle);
+					finalTime = player.getDuration();
+					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+					sb.setMax((int) finalTime);
+					setBackground();
+					
+				} catch (Exception e) {
+					// TODO: handle exception
 				}
-				if (!stop)
-					try {
-						player.reset();
-						player.setDataSource(PATH + songList.get(songPlaying).getName());
-						player.prepare();
-						player.start();
-						String songName = songList.get(songPlaying).getTitle();
-						txtSongName.setText(songName);
-						play.setBackgroundResource(R.drawable.pause);
-						addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-						play.setBackgroundResource(R.drawable.pause);
-						finalTime = player.getDuration();
-						txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-								TimeUnit.MILLISECONDS.toSeconds((long) finalTime) - TimeUnit.MINUTES
-										.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-						sb.setMax((int) finalTime);
-						com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
-						com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
-						com.example.musicplayer.SongsActivity.txtSongName.setText(songName);
-						com.example.musicplayer.SongsActivity.btnPlayPause.setBackgroundResource(R.drawable.pause);
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
+
 			}
 		});
 	}
@@ -202,13 +182,40 @@ public class NowPlaying extends Activity implements OnClickListener {
 
 	public void favorite(View view) {
 		Button btnFavorite = (Button) findViewById(R.id.btnFavorite);
-		if (fvt) {
-			btnFavorite.setBackgroundResource(R.drawable.heart1);
-			fvt = false;
-		} else {
-			btnFavorite.setBackgroundResource(R.drawable.heart2);
-			fvt = true;
+		Cursor c = database.query("favorite", null, null, null, null, null, null);
+		c.moveToFirst();
+		String p = PATH + songList.get(songPlaying).getName();
+		while (c.isAfterLast() == false) {
+			if(p.equals(c.getString(1))){
+				btnFavorite.setBackgroundResource(R.drawable.heart1);
+				database.delete("favorite", "songTitle=?", new String[]{c.getString(0)});
+				break;
+			}
+			c.moveToNext();
 		}
+		if (c.isAfterLast()) {
+			btnFavorite.setBackgroundResource(R.drawable.heart2);
+			ContentValues values = new ContentValues();
+			values.put("songTitle", songList.get(songPlaying).getTitle());
+			values.put("path", p);
+			database.insert("favorite", null, values);
+		}
+	}
+	public void getFavoriteStatus()
+	{
+		Button btnFavorite = (Button) findViewById(R.id.btnFavorite);
+		Cursor c = database.query("favorite", null, null, null, null, null, null);
+		c.moveToFirst();
+		String p = PATH + songList.get(songPlaying).getName();
+		while (c.isAfterLast() == false) {
+			if(p.equals(c.getString(1))){
+				btnFavorite.setBackgroundResource(R.drawable.heart2);
+				break;
+			}
+			c.moveToNext();
+		}
+		if(c.isAfterLast())
+			btnFavorite.setBackgroundResource(R.drawable.heart1);
 	}
 
 	public void openDatabase() {
@@ -304,79 +311,38 @@ public class NowPlaying extends Activity implements OnClickListener {
 			break;
 		case R.id.btnNext_NP:
 			angle = 0;
-			getType();
-			boolean stop = false;
-			if (lp == 0) {
-				songPlaying++;
-				if (songPlaying >= songList.size()) {
-					player.stop();
-					stop = true;
-				}
-			} else if (lp == 1) {
-				songPlaying++;
-				if (songPlaying >= songList.size())
-					songPlaying = 0;
-			} else {
-				songPlaying = rd.nextInt(songList.size() - 1);
+			songPlaying = handle.btnNext(songPlaying);
+			try {
+				getFavoriteStatus();
+				playingSongTitle = songList.get(songPlaying).getTitle();
+				txtSongName.setText(playingSongTitle);
+				finalTime = player.getDuration();
+				txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+						TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+								- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+				sb.setMax((int) finalTime);
+				setBackground();
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-			player.reset();
-			if (!stop)
-				try {
-					player.setDataSource(PATH + songList.get(songPlaying).getName());
-					player.prepare();
-					player.start();
-
-					String songName = songList.get(songPlaying).getTitle();
-					txtSongName.setText(songName);
-					play.setBackgroundResource(R.drawable.pause);
-					finalTime = player.getDuration();
-					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-					sb.setMax((int) finalTime);
-					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			break;
 		case R.id.btnPre_NP:
 			angle = 0;
-			getType();
-			boolean stop1 = false;
-			if (lp == 0) {
-				songPlaying--;
-				if (songPlaying < 0) {
-					player.stop();
-					stop1 = true;
-				}
-			} else if (lp == 1) {
-				songPlaying--;
-				if (songPlaying < 0)
-					songPlaying = songList.size() - 1;
-			} else {
-				songPlaying = rd.nextInt(songList.size() - 1);
+			songPlaying = handle.btnPrev(songPlaying);
+			try {
+				getFavoriteStatus();
+				playingSongTitle = songList.get(songPlaying).getTitle();
+				txtSongName.setText(playingSongTitle);
+				finalTime = player.getDuration();
+				txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+						TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+								- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
+				sb.setMax((int) finalTime);
+				setBackground();
+				
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-			player.reset();
-			if (!stop1)
-				try {
-					player.setDataSource(PATH + songList.get(songPlaying).getName());
-					player.prepare();
-					player.start();
-
-					String songName = songList.get(songPlaying).getTitle();
-					txtSongName.setText(songName);
-					play.setBackgroundResource(R.drawable.pause);
-					finalTime = player.getDuration();
-					txtFinal.setText(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-							TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-									- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-					sb.setMax((int) finalTime);
-					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			break;
 		case R.id.btnShare:
 			File audio = new File(PATH + playingSongName);
@@ -387,5 +353,28 @@ public class NowPlaying extends Activity implements OnClickListener {
 		default:
 			break;
 		}
+	}
+	
+	private void setBackground(){
+		if (player.isPlaying()) {
+			play.setBackgroundResource(R.drawable.pause);
+			com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
+		}
+		else{
+			play.setBackgroundResource(R.drawable.play);
+			com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.play);
+		}
+		try{
+			if(player.isPlaying())
+				com.example.musicplayer.SongsActivity.btnPlayPause.setBackgroundResource(R.drawable.pause);	
+			else
+				com.example.musicplayer.SongsActivity.btnPlayPause.setBackgroundResource(R.drawable.play);	
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		com.example.musicplayer.MainActivity.txtSongPlaying.setText(playingSongTitle);
+		com.example.musicplayer.SongsActivity.txtSongName.setText(playingSongTitle);
 	}
 }

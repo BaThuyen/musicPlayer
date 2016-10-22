@@ -31,11 +31,13 @@ import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.TextView;
@@ -53,6 +55,7 @@ public class SongsActivity extends Activity {
 	private String playingSongTitle = "";
 
 	private static String PATH;
+	private static String myPlaylist;
 	public static TextView txtSongName;
 	private int songPlaying;
 
@@ -60,6 +63,7 @@ public class SongsActivity extends Activity {
 	private String artist;
 	int lp;
 	Random rd = new Random();
+	ButtonHandle handle = com.example.musicplayer.MainActivity.handle;
 
 	public void getPATH() {
 
@@ -80,7 +84,8 @@ public class SongsActivity extends Activity {
 		setContentView(R.layout.activity_songs);
 		openDatabase();
 		getPATH();
-
+		myPlaylist = com.example.musicplayer.MainActivity.myPlaylist;
+		Toast.makeText(this, myPlaylist, Toast.LENGTH_LONG).show();
 		Bundle extras = getIntent().getExtras();
 		if (extras == null) {
 			album = null;
@@ -126,6 +131,15 @@ public class SongsActivity extends Activity {
 				}
 			}
 		});
+		lvwSongs.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				// TODO Auto-generated method stub
+				Toast.makeText(getApplicationContext(), "Long click", Toast.LENGTH_LONG).show();
+				return true;
+			}
+		});
 
 		btnPlayPause.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -146,39 +160,23 @@ public class SongsActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				getType();
-				boolean stop = false;
-				if (lp == 0) {
-					songPlaying++;
-					if (songPlaying >= songList.size()) {
-						player.stop();
-						stop = true;
-					}
-				} else if (lp == 1) {
-					songPlaying++;
-					if (songPlaying >= songList.size())
-						songPlaying = 0;
-				} else {
-					songPlaying = rd.nextInt(songList.size() - 1);
-				}
-				player.reset();
-				if (!stop)
-					try {
-						player.setDataSource(PATH + songList.get(songPlaying).getName());
-						player.prepare();
-						player.start();
-						String songName = songList.get(songPlaying).getTitle();
-						if (songName.length() > 15)
-							songName = songName.substring(0, 15).concat("..");
-						txtSongName.setText(songName);
+				songPlaying = handle.btnNext(songPlaying);
+				try {
+					String songName = songList.get(songPlaying).getTitle();
+					if (songName.length() > 15)
+						songName = songName.substring(0, 15).concat("..");
+					txtSongName.setText(songName);
+
+					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+					com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
+					if (player.isPlaying()) {
 						btnPlayPause.setBackgroundResource(R.drawable.pause);
-						addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-						com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
 						com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		btnPre.setOnClickListener(new OnClickListener() {
@@ -186,41 +184,22 @@ public class SongsActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				getType();
-				boolean stop1 = false;
-				if (lp == 0) {
-					songPlaying--;
-					if (songPlaying < 0) {
-						player.stop();
-						stop1 = true;
-					}
-				} else if (lp == 1) {
-					songPlaying--;
-					if (songPlaying < 0)
-						songPlaying = songList.size() - 1;
-				} else {
-					songPlaying = rd.nextInt(songList.size() - 1);
-				}
-				player.reset();
-				if (!stop1)
-					try {
-						player.setDataSource(PATH + songList.get(songPlaying).getName());
-						player.prepare();
-						player.start();
-
-						String songName = songList.get(songPlaying).getTitle();
-						if (songName.length() > 15)
-							songName = songName.substring(0, 15).concat("..");
-						txtSongName.setText(songName);
+				songPlaying = handle.btnPrev(songPlaying);
+				try {
+					String songName = songList.get(songPlaying).getTitle();
+					if (songName.length() > 15)
+						songName = songName.substring(0, 15).concat("..");
+					txtSongName.setText(songName);
+					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+					com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
+					if (player.isPlaying()) {
 						btnPlayPause.setBackgroundResource(R.drawable.pause);
-						addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-						com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
 						com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
-
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		Button btnRandom = (Button) findViewById(R.id.btnRandom);
@@ -258,40 +237,23 @@ public class SongsActivity extends Activity {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				// TODO Auto-generated method stub
-				getType();
-				boolean stop = false;
-				if (lp == 0) {
-					songPlaying++;
-					if (songPlaying >= songList.size()) {
-						player.stop();
-						stop = true;
-					}
-				} else if (lp == 1) {
-					songPlaying++;
-					if (songPlaying >= songList.size())
-						songPlaying = 0;
-				} else {
-					songPlaying = rd.nextInt(songList.size() - 1);
-				}
-				player.reset();
-				if (!stop)
-					try {
-						player.reset();
-						player.setDataSource(PATH + songList.get(songPlaying).getName());
-						player.prepare();
-						player.start();
-						String songName = songList.get(songPlaying).getTitle();
-						if (songName.length() > 15)
-							songName = songName.substring(0, 15).concat("..");
-						txtSongName.setText(songName);
-						btnPlayPause.setBackgroundResource(R.drawable.pause);
-						addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+				songPlaying = handle.btnNext(songPlaying);
+				try {
+					String songName = songList.get(songPlaying).getTitle();
+					if (songName.length() > 15)
+						songName = songName.substring(0, 15).concat("..");
+					txtSongName.setText(songName);
 
-						com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
+					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
+					com.example.musicplayer.MainActivity.txtSongPlaying.setText(songName);
+					if (player.isPlaying()) {
+						btnPlayPause.setBackgroundResource(R.drawable.pause);
 						com.example.musicplayer.MainActivity.btnPlay.setBackgroundResource(R.drawable.pause);
-					} catch (Exception e) {
-						// TODO: handle exception
 					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 	}// end of onCreate
@@ -377,13 +339,24 @@ public class SongsActivity extends Activity {
 				String thisTitle = musicCursor.getString(titleColumn);
 				String thisArtist = musicCursor.getString(artistColumn);
 				String thisAlbum = musicCursor.getString(albumColumn);
-				if (new File(PATH + thisName).exists()) {
-					if (album == null && artist == null)
-						songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
-					else if (thisAlbum.equals(album))
-						songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
-					else if (thisArtist.equals(artist))
-						songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+				if (myPlaylist.length() > 0) {
+					if (new File(myPlaylist + thisName).exists()) {
+						if (album == null && artist == null)
+							songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+						else if (thisAlbum.equals(album))
+							songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+						else if (thisArtist.equals(artist))
+							songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+					}
+				} else {
+					if (new File(PATH + thisName).exists()) {
+						if (album == null && artist == null)
+							songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+						else if (thisAlbum.equals(album))
+							songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+						else if (thisArtist.equals(artist))
+							songList.add(new Song(thisId, thisName, thisTitle, thisArtist, thisAlbum));
+					}
 				}
 			} while (musicCursor.moveToNext());
 		}

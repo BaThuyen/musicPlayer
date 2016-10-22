@@ -21,6 +21,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,16 +36,17 @@ import model_song.Song;
 public class MainActivity extends Activity implements OnClickListener {
 
 	public static ArrayList<Song> songList;
-	// service
+
 	int lp;
 	Random rd = new Random();
 	private static String playingSongName;
 	private static String playingSongTitle;
-	private static SQLiteDatabase database;
+	public static SQLiteDatabase database;
 	// binding
-	private boolean musicBound = false;
 	public static MediaPlayer player;
 	public static String PATH;
+	public static String myPlaylist = "";
+	public static ButtonHandle handle;
 
 	// controller
 
@@ -61,7 +63,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		player = new MediaPlayer();
 		setContentView(R.layout.activity_main);
-
+		myPlaylist = "";
 		playingSongName = "";
 		playingSongTitle = "";
 		openDatabase();
@@ -83,7 +85,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		btnPre = (Button) findViewById(R.id.btnPre_M);
 		btnPre.setOnClickListener(this);
-
+		handle = new ButtonHandle();
 		FragmentManager fm = getFragmentManager();
 		FragmentTransaction fragmentTransaction = fm.beginTransaction();
 		fragmentTransaction.replace(R.id.frgSwitch, myfragment);
@@ -109,32 +111,15 @@ public class MainActivity extends Activity implements OnClickListener {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				// TODO Auto-generated method stub
-				getType();
-				boolean stop = false;
-				if (lp == 0) {
-					songPlaying++;
-					if (songPlaying >= songList.size()) {
-						player.stop();
-						stop = true;
-					}
-				} else if (lp == 1) {
-					songPlaying++;
-					if (songPlaying >= songList.size())
-						songPlaying = 0;
-				} else {
-					songPlaying = rd.nextInt(songList.size() - 1);
+				songPlaying = handle.btnNext(songPlaying);
+				try {
+					playingSongName = songList.get(songPlaying).getTitle();
+					if (playingSongName.length() > 15)
+						playingSongName = playingSongName.substring(0, 15).concat("..");
+					txtSongPlaying.setText(playingSongName);
+				} catch (Exception e) {
+					// TODO: handle exception
 				}
-				if (!stop)
-					try {
-						player.reset();
-						player.setDataSource(PATH + songList.get(songPlaying).getName());
-						player.prepare();
-						player.start();
-						txtSongPlaying.setText(songList.get(songPlaying).getName());
-						btnPlay.setBackgroundResource(R.drawable.pause);
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
 			}
 		});
 	}
@@ -152,6 +137,14 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		query = "CREATE TABLE IF NOT EXISTS playingType(type INTERGER)";
 		database.execSQL(query);
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		player.stop();
+		System.exit(1);
 	}
 
 	public void getPATH() {
@@ -215,6 +208,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	public void FragmentSongs(View view) {
+		myPlaylist = "";
 		Intent intent = new Intent(this, SongsActivity.class);
 		startActivity(intent);
 	}
@@ -266,9 +260,22 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	public void ActivityPlaying(View view) {
+		
 		Intent intent = new Intent(this, NowPlaying.class);
 		startActivity(intent);
+	}
 
+	public void MyPlaylist(View view) {
+		myPlaylist = System.getenv("EXTERNAL_STORAGE") + "/myPlaylist/";
+		File folder = new File(myPlaylist);
+		if(folder.exists()){
+			
+		}
+		else{
+			folder.mkdir();
+		}
+		Intent intent = new Intent(this, SongsActivity.class);
+		startActivity(intent);
 	}
 
 	@Override
@@ -276,83 +283,29 @@ public class MainActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 		switch (arg0.getId()) {
 		case R.id.btnPlay:
-			if (player.isPlaying()) {
-				player.pause();
-				btnPlay.setBackgroundResource(R.drawable.play);
-			} else {
-				player.start();
-				btnPlay.setBackgroundResource(R.drawable.pause);
-				;
-			}
+			handle.btnPlayPause();
 			break;
 		case R.id.btnNext_M:
-			getType();
-			boolean stop = false;
-			if (lp == 0) {
-				songPlaying++;
-				if (songPlaying >= songList.size()) {
-					player.stop();
-					stop = true;
-				}
-			} else if (lp == 1) {
-				songPlaying++;
-				if (songPlaying >= songList.size())
-					songPlaying = 0;
-			} else {
-				songPlaying = rd.nextInt(songList.size() - 1);
+			songPlaying = handle.btnNext(songPlaying);
+			try {
+				playingSongName = songList.get(songPlaying).getTitle();
+				if (playingSongName.length() > 15)
+					playingSongName = playingSongName.substring(0, 15).concat("..");
+				txtSongPlaying.setText(playingSongName);
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-			player.reset();
-			if (!stop)
-				try {
-					player.setDataSource(PATH + songList.get(songPlaying).getName());
-					player.prepare();
-					player.start();
-
-					String songName = songList.get(songPlaying).getTitle();
-					if (songName.length() > 15)
-						songName = songName.substring(0, 15).concat("..");
-					txtSongPlaying.setText(songName);
-					btnPlay.setBackgroundResource(R.drawable.pause);
-					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			break;
 		case R.id.btnPre_M:
-			getType();
-			Toast.makeText(this, lp + "", Toast.LENGTH_LONG).show();
-			boolean stop1 = false;
-			if (lp == 0) {
-				songPlaying--;
-				if (songPlaying < 0) {
-					player.stop();
-					stop1 = true;
-				}
-			} else if (lp == 1) {
-				songPlaying--;
-				if (songPlaying < 0)
-					songPlaying = songList.size() - 1;
-			} else {
-				songPlaying = rd.nextInt(songList.size() - 1);
+			songPlaying = handle.btnPrev(songPlaying);
+			try {
+				playingSongName = songList.get(songPlaying).getTitle();
+				if (playingSongName.length() > 15)
+					playingSongName = playingSongName.substring(0, 15).concat("..");
+				txtSongPlaying.setText(playingSongName);
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-			player.reset();
-			if (!stop1)
-				try {
-					player.setDataSource(PATH + songList.get(songPlaying).getName());
-					player.prepare();
-					player.start();
-
-					String songName = songList.get(songPlaying).getTitle();
-					if (songName.length() > 15)
-						songName = songName.substring(0, 15).concat("..");
-					txtSongPlaying.setText(songName);
-					btnPlay.setBackgroundResource(R.drawable.pause);
-					addRecently(songList.get(songPlaying).getName(), songList.get(songPlaying).getTitle());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			break;
 		default:
 			break;
